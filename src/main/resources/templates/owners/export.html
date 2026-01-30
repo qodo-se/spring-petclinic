@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Owner Export</title>
+</head>
+<body>
+<h2>Owner Export Snapshot</h2>
+<p>File created at <span th:text="${fileName}"></span></p>
+<pre th:text="${csvPayload}"></pre>
+</body>
+</html>

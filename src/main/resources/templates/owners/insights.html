@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Owner Insights</title>
+</head>
+<body>
+<h2>Owner Insights</h2>
+<form method="get" action="/owners/insights">
+    <label>City</label>
+    <input name="city" th:value="${city}">
+    <button type="submit">Load Insights</button>
+</form>
+<section th:if="${owners}">
+    <h3 th:text="'Top owners for ' + ${city}"></h3>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>City</th>
+            <th>Engagement</th>
+            <th>Tier</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="owner : ${owners}">
+            <td th:text="${owner.id}"></td>
+            <td th:text="${owner.firstName} + ' ' + ${owner.lastName}"></td>
+            <td th:text="${owner.city}"></td>
+            <td th:text="${owner.engagementScore}"></td>
+            <td th:text="${owner.loyaltyTier}"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+<section th:if="${stats}">
+    <h4>Raw Stats</h4>
+    <pre th:text="${stats}"></pre>
+</section>
+</body>
+</html>

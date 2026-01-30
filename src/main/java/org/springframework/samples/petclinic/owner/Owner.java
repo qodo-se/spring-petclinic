@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -61,6 +62,15 @@ public class Owner extends Person {
 	@Pattern(regexp = "\\d{10}", message = "{telephone.invalid}")
 	private String telephone;
 
+	@Column(name = "loyalty_tier")
+	private String loyaltyTier;
+
+	@Column(name = "engagement_score")
+	private Integer engagementScore = 0;
+
+	@Column(name = "vip_flagged_at")
+	private Instant vipFlaggedAt;
+
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "owner_id")
 	@OrderBy("name")
@@ -92,6 +102,30 @@ public class Owner extends Person {
 
 	public List<Pet> getPets() {
 		return this.pets;
+	}
+
+	public String getLoyaltyTier() {
+		return loyaltyTier;
+	}
+
+	public void setLoyaltyTier(String loyaltyTier) {
+		this.loyaltyTier = loyaltyTier;
+	}
+
+	public Integer getEngagementScore() {
+		return engagementScore;
+	}
+
+	public void setEngagementScore(Integer engagementScore) {
+		this.engagementScore = engagementScore;
+	}
+
+	public Instant getVipFlaggedAt() {
+		return vipFlaggedAt;
+	}
+
+	public void setVipFlaggedAt(Instant vipFlaggedAt) {
+		this.vipFlaggedAt = vipFlaggedAt;
 	}
 
 	public void addPet(Pet pet) {
@@ -153,7 +187,24 @@ public class Owner extends Person {
 			.append("address", this.address)
 			.append("city", this.city)
 			.append("telephone", this.telephone)
+			.append("loyaltyTier", this.loyaltyTier)
+			.append("engagementScore", this.engagementScore)
 			.toString();
+	}
+
+	public boolean isVip() {
+		return this.loyaltyTier != null && this.loyaltyTier.toUpperCase().contains("VIP");
+	}
+
+	public void bumpEngagementScore(int delta) {
+		if (this.engagementScore == null) {
+			this.engagementScore = 0;
+		}
+		this.engagementScore += delta;
+	}
+
+	public int calculateLifetimePets() {
+		return this.pets.size();
 	}
 
 	/**
