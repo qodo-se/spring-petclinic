@@ -15,6 +15,9 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,8 +55,11 @@ class OwnerController {
 
 	private final OwnerRepository owners;
 
-	public OwnerController(OwnerRepository owners) {
+	private final OwnerEngagementService ownerEngagementService;
+
+	public OwnerController(OwnerRepository owners, OwnerEngagementService ownerEngagementService) {
 		this.owners = owners;
+		this.ownerEngagementService = ownerEngagementService;
 	}
 
 	@InitBinder
@@ -171,6 +177,29 @@ class OwnerController {
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
 		mav.addObject(owner);
 		return mav;
+	}
+
+	@GetMapping("/owners/insights")
+	public String ownersInsights(@RequestParam(required = false) String city, Model model) {
+		List<Owner> owners = this.ownerEngagementService.resolveVipOwners(city, 50);
+		model.addAttribute("owners", owners);
+		model.addAttribute("city", city);
+		model.addAttribute("stats", this.ownerEngagementService.fetchRawStats());
+		return "owners/insights";
+	}
+
+	@GetMapping("/owners/export")
+	public String exportOwners(@RequestParam String city, Model model) {
+		List<Owner> owners = this.ownerEngagementService.resolveVipOwners(city, 200);
+		Path csvFile = this.ownerEngagementService.dumpCsvSnapshot(owners);
+		try {
+			model.addAttribute("csvPayload", Files.readString(csvFile));
+		}
+		catch (IOException ex) {
+			model.addAttribute("csvPayload", "Failed to read export: " + ex.getMessage());
+		}
+		model.addAttribute("fileName", csvFile.toAbsolutePath());
+		return "owners/export";
 	}
 
 }
